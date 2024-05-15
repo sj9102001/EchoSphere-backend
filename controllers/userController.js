@@ -54,15 +54,14 @@ exports.login = async (req, res) => {
         const isCorrectPassword = await bcrypt.compare(password, user.password);
         if (isCorrectPassword) {
             //signign the jwt token and sending as response
-            const token = jwt.sign({ userId: user._id, username: user.username, email: user.email }, SECRET_KEY, { expiresIn: '1h' });
+            const token = jwt.sign({ id: user.id, name: user.name, email: user.email }, SECRET_KEY, { expiresIn: '1h' });
             res.cookie('authToken', token, {
                 httpOnly: true,
                 maxAge: 24 * 60 * 60 * 1000
             });
-            console.log(token);
             return res.status(200).json({
                 message: "Success, re-directing you to home page", user: {
-                    username: user.name,
+                    name: user.name,
                     email: user.email,
                     id: user.id
                 }
@@ -75,3 +74,49 @@ exports.login = async (req, res) => {
         res.status(500).json({ message: "Internal Server Error" });
     }
 };
+
+exports.verifyAuth = async (req, res) => {
+    try {
+        res.status(200).json({
+            user: {
+                email: req.user.email,
+                name: req.user.name,
+                id: req.user.id
+            }, message: "User is authorized"
+        });
+    } catch (error) {
+        res.status(500).json({ message: "Internal Server Error" });
+    }
+}
+
+exports.logout = async (req, res) => {
+    try {
+        res.clearCookie('authToken', {
+            httpOnly: true
+        });
+        res.status(200).json({ message: "You have been successfully logged out" });
+    } catch (error) {
+        res.status(500).json({ message: "Internal Server Error" });
+    }
+}
+
+exports.getData = async (req, res) => {
+    try {
+        const { email } = req.user;
+        const user = await prisma.user.findUnique({
+            where: {
+                email: email
+            }
+        })
+        res.status(200).json({
+            data: {
+                email: user.email,
+                username: user.name,
+                bio: user.bio,
+                createdAt: user.createdAt
+            }
+        })
+    } catch (error) {
+        res.status(500).json({ message: "Internal Server Error" });
+    }
+}
