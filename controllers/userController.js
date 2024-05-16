@@ -39,7 +39,6 @@ exports.signup = async (req, res) => {
 
 exports.login = async (req, res) => {
     try {
-        console.log("It hits");
         const { email, password } = req.body;
         const user = await prisma.user.findUnique({
             where: {
@@ -100,6 +99,65 @@ exports.logout = async (req, res) => {
     }
 }
 
+exports.update = async (req, res) => {
+    const { name: newName, bio: newBio } = req.body;
+    try {
+        const updatedUser = await prisma.user.update({
+            where: {
+                id: req.user.id
+            },
+            data: {
+                name: newName,
+                bio: newBio
+            }
+        });
+        res.status(200).json({
+            message: "Information Updated Successfully", user: {
+                email: updatedUser.email, id: updatedUser.id, name: updatedUser.name, bio: updatedUser.bio,
+            }
+        })
+    } catch (error) {
+        res.status(500).json({ message: "Internal Server Error" });
+    }
+}
+
+
+exports.searchUsers = async (req, res) => {
+    const query = req.params.query;
+    console.log(query);
+    try {
+        const foundUsers = await prisma.user.findMany({
+            where: {
+                OR: [
+                    {
+                        name: {
+                            contains: query
+                        }
+                    },
+                    {
+                        email: {
+                            contains: query
+                        }
+                    }
+                ]
+            },
+            select: {
+                userId: true,
+                name: true,
+                email: true
+            }
+        });
+        if (foundUsers.length > 0) {
+            return res.status(200).json({ data: foundUsers })
+        } else {
+            return res.status(404).json({ message: "No Users Found" });
+
+        }
+    } catch (error) {
+        res.status(500).json({ message: "Internal Server Error" });
+    }
+}
+
 exports.getData = async (req, res) => {
     try {
         const { email } = req.user;
@@ -111,7 +169,7 @@ exports.getData = async (req, res) => {
         res.status(200).json({
             data: {
                 email: user.email,
-                username: user.name,
+                name: user.name,
                 bio: user.bio,
                 createdAt: user.createdAt
             }

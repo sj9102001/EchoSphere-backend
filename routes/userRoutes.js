@@ -23,6 +23,9 @@ router.post('/login',
 
 router.get('/', verifyUser, userController.getData);
 
+router.put('/', verifyUser, userController.update);
+
+
 router.get('/verifyAuth', verifyUser, userController.verifyAuth);
 
 router.get('/logout', userController.logout);
