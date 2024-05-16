@@ -33,7 +33,7 @@ exports.signup = async (req, res) => {
         res.status(201).json({ message: "User successfully created, please login!" });
     } catch (error) {
         console.log(error);
-        res.status(400).json({ message: "Internal Server Error" });
+        res.status(500).json({ message: "Internal Server Error" });
     }
 };
 
@@ -62,7 +62,8 @@ exports.login = async (req, res) => {
                 message: "Success, re-directing you to home page", user: {
                     name: user.name,
                     email: user.email,
-                    id: user.id
+                    id: user.id,
+                    bio: user.bio
                 }
             });
         } else {
@@ -121,6 +122,23 @@ exports.update = async (req, res) => {
     }
 }
 
+
+exports.delete = async (req, res) => {
+    try {
+        const deletedUser = await prisma.user.delete({
+            where: {
+                id: req.user.id
+            },
+        });
+        res.status(200).json({
+            message: "Profile deleted Successfully", user: {
+                email: deletedUser.email, id: deletedUser.id, name: deletedUser.name, bio: deletedUser.bio,
+            }
+        })
+    } catch (error) {
+        res.status(500).json({ message: "Internal Server Error" });
+    }
+}
 
 exports.searchUsers = async (req, res) => {
     const query = req.params.query;

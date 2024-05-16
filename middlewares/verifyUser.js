@@ -11,7 +11,7 @@ const verifyUser = async (req, res, next) => {
         req.user = {
             name: verify.name,
             email: verify.email,
-            id: verify.id
+            id: verify.id,
         };
         next();
     } catch (error) {

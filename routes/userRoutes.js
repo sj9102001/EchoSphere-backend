@@ -25,6 +25,7 @@ router.get('/', verifyUser, userController.getData);
 
 router.put('/', verifyUser, userController.update);
 
+router.delete('/', verifyUser, userController.delete);
 
 router.get('/verifyAuth', verifyUser, userController.verifyAuth);
 
