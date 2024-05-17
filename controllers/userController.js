@@ -125,6 +125,21 @@ exports.update = async (req, res) => {
 
 exports.delete = async (req, res) => {
     try {
+        //delete the current users friendlist and remove from everyone friendlist 
+        const deleted = await prisma.friend.deleteMany({
+            where: {
+                OR: [
+                    {
+                        user1Id: req.user.id,
+                    },
+                    {
+                        user2Id: req.user.id
+                    }
+                ]
+            }
+        });
+        //delete the user
+        console.log("Here", deleted);
         const deletedUser = await prisma.user.delete({
             where: {
                 id: req.user.id
@@ -136,6 +151,7 @@ exports.delete = async (req, res) => {
             }
         })
     } catch (error) {
+        console.log(error);
         res.status(500).json({ message: "Internal Server Error" });
     }
 }

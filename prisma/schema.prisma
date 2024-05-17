@@ -23,6 +23,7 @@ model User {
   sentRequests     FriendRequest[] @relation("SentRequests")
   receivedRequests FriendRequest[] @relation("ReceivedRequests")
   friends          Friend[]        @relation("Friends")
+  posts            Post[]
 }
 
 model FriendRequest {
@@ -44,4 +45,14 @@ model Friend {
   user2 User @relation("Friends", fields: [user2Id], references: [id])
 
   @@unique([user1Id, user2Id])
+}
+
+model Post {
+  id        Int      @id @default(autoincrement())
+  content   String
+  authorId  Int
+  mediaLink String?
+  author    User     @relation(fields: [authorId], references: [id])
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 }

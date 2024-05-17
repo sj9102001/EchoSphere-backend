@@ -3,12 +3,12 @@ const router = express.Router();
 const friendController = require('../controllers/friendController');
 const { verifyUser } = require("../middlewares/verifyUser");
 
-router.post('/', verifyUser, friendController.sendFriendRequest);
+router.post('/request', verifyUser, friendController.sendFriendRequest);
 
-router.get('/', verifyUser, friendController.fetchAllRequests);
+router.get('/request', verifyUser, friendController.fetchAllRequests);
 
-router.post('/accept', verifyUser, friendController.acceptRequest);
+router.post('/request/accept', verifyUser, friendController.acceptRequest);
 
-router.get('/all', verifyUser, friendController.fetchAllFriends);
+router.get('/', verifyUser, friendController.fetchAllFriends);
 
 module.exports = router;

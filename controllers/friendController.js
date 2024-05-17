@@ -40,7 +40,10 @@ exports.acceptRequest = async (req, res) => {
                 {
                     user1Id: friendRequest.senderId,
                     user2Id: friendRequest.receiverId,
-                },
+                }, {
+                    user1Id: friendRequest.receiverId,
+                    user2Id: friendRequest.senderId
+                }
             ],
         });
         res.status(200).json({ message: "Friend Request Accepted Succesfully" });
@@ -55,7 +58,7 @@ exports.fetchAllFriends = async (req, res) => {
     try {
         const friends = await prisma.friend.findMany({
             where: {
-                user1Id: id
+                user1Id: id,
             },
             include: {
                 user2: true
@@ -63,6 +66,7 @@ exports.fetchAllFriends = async (req, res) => {
         });
         res.status(200).json({ data: friends });
     } catch (error) {
+        console.log(error);
         res.status(500).json({ message: "Error fetching all friends" });
     }
 }
