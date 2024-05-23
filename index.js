@@ -3,6 +3,7 @@ const cookieParser = require("cookie-parser");
 require('dotenv').config();
 const userRoutes = require('./routes/userRoutes');
 const friendRoutes = require('./routes/friendRoutes');
+const postRoutes = require('./routes/postRoutes');
 
 const PORT = process.env.port || 8080;
 
@@ -20,7 +21,11 @@ app.use(express.json());
 
 app.use('/user', userRoutes);
 app.use('/friend', friendRoutes);
+app.use('/post', postRoutes);
+
 
 app.listen(PORT, (req, res) => {
     console.log(`Server is running on port ${PORT}`);
 });
+
+
