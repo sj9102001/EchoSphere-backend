@@ -58,6 +58,7 @@ exports.login = async (req, res) => {
                 httpOnly: true,
                 maxAge: 24 * 60 * 60 * 1000
             });
+            console.log(user.bio);
             return res.status(200).json({
                 message: "Success, re-directing you to home page", user: {
                     name: user.name,
@@ -157,47 +158,103 @@ exports.delete = async (req, res) => {
 }
 
 exports.searchUsers = async (req, res) => {
-    const query = req.params.query;
-    console.log(query);
+    const query = req.body.query;
+    const skip = req.body.skip;
     try {
-        const foundUsers = await prisma.user.findMany({
+        const totalCount = await prisma.user.count({
             where: {
                 OR: [
                     {
                         name: {
-                            contains: query
-                        }
+                            contains: query,
+                        },
                     },
                     {
                         email: {
-                            contains: query
-                        }
-                    }
-                ]
+                            contains: query,
+                        },
+                    },
+                ],
+            },
+        });
+        const foundUsers = await prisma.user.findMany({
+            skip: skip,
+            take: 4,
+            where: {
+                OR: [
+                    {
+                        name: {
+                            contains: query,
+                        },
+                    },
+                    {
+                        email: {
+                            contains: query,
+                        },
+                    },
+                ],
             },
             select: {
-                userId: true,
+                id: true,
                 name: true,
-                email: true
-            }
+                email: true,
+                bio: true,
+            },
         });
-        if (foundUsers.length > 0) {
-            return res.status(200).json({ data: foundUsers })
-        } else {
-            return res.status(404).json({ message: "No Users Found" });
 
-        }
+        const hasMore = totalCount > (skip + 4);
+        return res.status(200).json({
+            searchList: foundUsers, showLoadMore: hasMore
+        })
     } catch (error) {
         res.status(500).json({ message: "Internal Server Error" });
     }
 }
 
+// exports.searchUsers = async (req, res) => {
+//     const query = req.body.query;
+//     console.log(query);
+//     try {
+//         const foundUsers = await prisma.user.findMany({
+//             take: 4,
+//             where: {
+//                 OR: [
+//                     {
+//                         name: {
+//                             contains: query
+//                         }
+//                     },
+//                     {
+//                         email: {
+//                             contains: query
+//                         }
+//                     }
+//                 ]
+//             },
+//             select: {
+//                 id: true,
+//                 name: true,
+//                 email: true,
+//                 bio: true
+//             }
+//         });
+//         if (foundUsers.length > 0) {
+//             return res.status(200).json({ data: foundUsers })
+//         } else {
+//             return res.status(404).json({ message: "No Users Found" });
+
+//         }
+//     } catch (error) {
+//         res.status(500).json({ message: "Internal Server Error" });
+//     }
+// }
+
 exports.getData = async (req, res) => {
     try {
-        const { email } = req.user;
+        console.log(req.body);
         const user = await prisma.user.findUnique({
             where: {
-                email: email
+                id: req.body.userId
             }
         })
         res.status(200).json({
@@ -205,10 +262,12 @@ exports.getData = async (req, res) => {
                 email: user.email,
                 name: user.name,
                 bio: user.bio,
-                createdAt: user.createdAt
+                createdAt: user.createdAt,
+                id: req.body.userId,
             }
         })
     } catch (error) {
+        console.log(error)
         res.status(500).json({ message: "Internal Server Error" });
     }
 }
