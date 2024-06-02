@@ -21,7 +21,7 @@ router.post('/login',
     userController.login
 );
 
-router.get('/', verifyUser, userController.getData);
+router.post('/', userController.getData);
 
 router.put('/', verifyUser, userController.update);
 
@@ -30,5 +30,7 @@ router.delete('/', verifyUser, userController.delete);
 router.get('/verifyAuth', verifyUser, userController.verifyAuth);
 
 router.get('/logout', userController.logout);
+
+router.post('/search', userController.searchUsers)
 
 module.exports = router;
