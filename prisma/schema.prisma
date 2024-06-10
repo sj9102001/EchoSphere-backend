@@ -24,6 +24,8 @@ model User {
   receivedRequests FriendRequest[] @relation("ReceivedRequests")
   friends          Friend[]        @relation("Friends")
   posts            Post[]
+  messagesSent     Message[]   
+  participant      Participant[]   
 }
 
 model FriendRequest {
@@ -48,11 +50,38 @@ model Friend {
 }
 
 model Post {
-  id        Int      @id @default(autoincrement())
+  id        Int       @id @default(autoincrement())
   content   String
   authorId  Int
   mediaLink String?
-  author    User     @relation(fields: [authorId], references: [id])
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  author    User      @relation(fields: [authorId], references: [id])
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+}
+
+model Message{
+  id              Int             @id @default(autoincrement())
+  content         String
+  mediaLink       String?
+  authorId        Int
+  author          User            @relation(fields: [AuthorId], references: [id])
+  createdAt       DateTime        @default(now())
+  chatRoomId      Int
+  chatRoom        ChatRoom     @relation(fields:[participantId],references:[id])
+}
+
+model ChatRoom{
+  id              Int     @id @default(autoincrement())
+  createdAt       DateTime @default(now())
+  message         Message[]  
+  participant     Participant[] 
+  user            user[]  
+}
+
+model Participant{
+  id          Int         @id @default(autoincrement())
+  chatRoomId  Int
+  chatRoom    ChatRoom    @relation(fields:[chatRoomId],references:[id])   
+  userId      Int
+  user        User        @relation(fields:[userId],references:[id])
 }
